@@ -7,14 +7,13 @@ export default function TerminalWidget() {
     { command: 'hint', output: 'Type "help" to see available terminal commands.' },
   ]);
   const [input, setInput] = useState('');
-  const terminalEndRef = useRef(null);
+  const terminalBoxRef = useRef(null);
 
-  const scrollToBottom = () => {
-    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  // Scroll ONLY the internal terminal box, NOT the main window
   useEffect(() => {
-    scrollToBottom();
+    if (terminalBoxRef.current) {
+      terminalBoxRef.current.scrollTop = terminalBoxRef.current.scrollHeight;
+    }
   }, [history]);
 
   const handleCommand = (e) => {
@@ -99,7 +98,6 @@ export default function TerminalWidget() {
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
               <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
-              <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
               <span className="text-xs text-slate-400 ml-2 font-medium">
                 sani@diu-cse: ~ (zsh)
               </span>
@@ -117,8 +115,11 @@ export default function TerminalWidget() {
             </div>
           </div>
 
-          {/* Terminal Screen Output */}
-          <div className="p-4 sm:p-6 bg-obsidian-950/90 max-h-96 overflow-y-auto space-y-4 text-slate-300">
+          {/* Terminal Screen Output (Internal scroll container only) */}
+          <div
+            ref={terminalBoxRef}
+            className="p-4 sm:p-6 bg-obsidian-950/90 max-h-96 overflow-y-auto space-y-4 text-slate-300"
+          >
             {history.map((item, idx) => (
               <div key={idx} className="space-y-1">
                 {item.command && (
@@ -143,10 +144,8 @@ export default function TerminalWidget() {
                 onKeyDown={handleCommand}
                 placeholder="type 'help', 'email', 'projects'..."
                 className="w-full bg-transparent border-none outline-none text-sky-300 font-bold focus:ring-0 placeholder:text-slate-600"
-                autoFocus
               />
             </div>
-            <div ref={terminalEndRef} />
           </div>
         </div>
       </div>
